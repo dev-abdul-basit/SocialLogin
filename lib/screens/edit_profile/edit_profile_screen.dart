@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:socaillogin/components/primary_button.dart';
+import 'package:socaillogin/screens/home/homepage.dart';
 
 import 'package:socaillogin/screens/profile/components/profile_header.dart';
 import 'package:socaillogin/size_config.dart';
@@ -12,8 +13,13 @@ import 'dart:async';
 
 class EditProfilePage extends StatefulWidget {
   static String routeName = '/editProfile';
-  const EditProfilePage({Key? key, required this.isEdit}) : super(key: key);
+  const EditProfilePage({
+    Key? key,
+    required this.isEdit,
+    required this.route,
+  }) : super(key: key);
   final bool isEdit;
+  final String route;
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
 }
@@ -36,6 +42,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String? fileName;
 
   @override
+  void initState() {
+    super.initState();
+
+    isEnabled = widget.isEdit;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
@@ -46,27 +59,37 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 imageUrl == 'Empty' ? 'assets/images/user.png' : fileName!,
             isEdit: widget.isEdit,
             backPress: () {
-              Navigator.of(context).pop();
+              if (widget.route == 'firstLogin') {
+                Navigator.pushNamedAndRemoveUntil(
+                    context, HomePage.routeName, (route) => false);
+              } else {
+                Navigator.of(context).pop();
+              }
             },
             editPress: () {
               setState(() {
-                isEnabled = !isEnabled;
+                //isEnabled = !isEnabled;
               });
             },
             cameraPress: () {
               _optionsDialogBox();
             },
-            icon: isEnabled
-                ? const Icon(
-                    Icons.done_all_rounded,
-                    color: Colors.white,
-                    size: 36,
-                  )
-                : const Icon(
-                    Icons.edit_note_rounded,
-                    color: Colors.white,
-                    size: 36,
-                  ),
+            icon: const Icon(
+              Icons.edit_note_rounded,
+              color: Colors.white,
+              size: 36,
+            ),
+            // icon: isEnabled
+            //     ? const Icon(
+            //         Icons.done_all_rounded,
+            //         color: Colors.white,
+            //         size: 36,
+            //       )
+            //     : const Icon(
+            //         Icons.edit_note_rounded,
+            //         color: Colors.white,
+            //         size: 36,
+            //       ),
           ),
           SizedBox(height: getProportionateScreenHeight(120)),
           Expanded(

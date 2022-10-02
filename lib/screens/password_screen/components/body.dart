@@ -6,6 +6,7 @@ import '../../../size_config.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:socaillogin/components/primary_button.dart';
 
+import '../../edit_profile/edit_profile_screen.dart';
 import '../../home/homepage.dart';
 
 class Body extends StatefulWidget {
@@ -154,8 +155,13 @@ class _BodyState extends State<Body> {
                       _formKey.currentState!.save();
                       setState(() {});
                       KeyboardUtil.hideKeyboard(context);
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, HomePage.routeName, (route) => false);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditProfilePage(
+                              isEdit: true,route: 'firstLogin',
+                            ),
+                          ));
                     }
                   },
                   text: 'SAVE',

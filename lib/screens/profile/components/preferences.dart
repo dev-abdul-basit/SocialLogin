@@ -25,7 +25,7 @@ class _ProfilePreferencesState extends State<ProfilePreferences> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const EditProfilePage(
-                        isEdit: true,
+                        isEdit: true,route: 'editProfile',
                       ),
                     ));
               },

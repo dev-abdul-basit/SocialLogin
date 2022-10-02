@@ -22,6 +22,6 @@ final Map<String, WidgetBuilder> routes = {
   SignUpScreen.routeName: (context) => const SignUpScreen(),
   HomePage.routeName: (context) => const HomePage(),
   ProfilePage.routeName: (context) => const ProfilePage(isEdit: true),
-  EditProfilePage.routeName: (context) => const EditProfilePage(isEdit: true),
+  EditProfilePage.routeName: (context) => const EditProfilePage(isEdit: true,route:''),
   BookAppointmentPage.routeName: (context) => const BookAppointmentPage(),
 };

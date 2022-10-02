@@ -1,11 +1,10 @@
-import 'package:adobe_xd/pinned.dart';
-import 'package:flutter/gestures.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:socaillogin/components/primary_button.dart';
-import 'package:socaillogin/components/secondary_button.dart';
+
 import 'package:socaillogin/size_config.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
+
 
 import '../../../constants.dart';
 import '../../../helper/keyboard.dart';

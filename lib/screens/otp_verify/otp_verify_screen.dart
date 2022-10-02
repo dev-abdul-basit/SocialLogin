@@ -6,16 +6,12 @@ import 'components/body.dart';
 class OtpScreen extends StatelessWidget {
   static String routeName = "/otp";
 
-  const OtpScreen({super.key});
+  const OtpScreen({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("OTP Verification"),
-        centerTitle: false,
-      ),
-      body: const Body(),
+    return const Scaffold(
+      body: Body(),
     );
   }
 }

@@ -38,7 +38,7 @@ class _BodyState extends State<Body> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(height: SizeConfig.screenHeight * 0.05),
+              SizedBox(height: SizeConfig.screenHeight * 0.10),
               Text(
                 "OTP Verification",
                 style: headingStyle,
@@ -59,7 +59,7 @@ class _BodyState extends State<Body> {
                   "Resend OTP Code",
                   style: TextStyle(decoration: TextDecoration.underline),
                 ),
-              )
+              ),
             ],
           ),
         ),

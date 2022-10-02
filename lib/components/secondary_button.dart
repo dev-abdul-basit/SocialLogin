@@ -19,8 +19,7 @@ class SecondaryButton extends StatelessWidget {
         children: <Widget>[
           OutlinedButton(
             style: OutlinedButton.styleFrom(
-                primary: kPrimaryColor,
-                onSurface: kPrimaryColor,
+                foregroundColor: kPrimaryColor, disabledForegroundColor: kPrimaryColor.withOpacity(0.38),
                 textStyle: const TextStyle(
                   fontFamily: 'Poppins-Bold',
                   fontSize: 18,

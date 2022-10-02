@@ -3,6 +3,7 @@ import 'package:socaillogin/screens/book_appointment/book_appointment.dart';
 import 'package:socaillogin/screens/edit_profile/edit_profile_screen.dart';
 import 'package:socaillogin/screens/home/homepage.dart';
 import 'package:socaillogin/screens/intro_screen/introduction_screen.dart';
+import 'package:socaillogin/screens/otp_verify/otp_verify_screen.dart';
 import 'package:socaillogin/screens/profile/profilepage.dart';
 import 'package:socaillogin/screens/sign_in/sign_in_screen.dart';
 import 'package:socaillogin/screens/sign_up/sign_up_screen.dart';
@@ -14,6 +15,7 @@ import 'screens/splash_screen/splash_screen.dart';
 final Map<String, WidgetBuilder> routes = {
   SplashScreen.routeName: (context) => const SplashScreen(),
   IntroScreen.routeName: (context) => const IntroScreen(),
+  OtpScreen.routeName:(context) => const OtpScreen(),
   SignInScreen.routeName: (context) => const SignInScreen(),
   SignUpScreen.routeName: (context) => const SignUpScreen(),
   HomePage.routeName: (context) => const HomePage(),

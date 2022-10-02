@@ -29,7 +29,7 @@ final headingStyle = TextStyle(
   height: 1.5,
 );
 final headingStyleBA = TextStyle(
-  fontSize: getProportionateScreenWidth(28),
+  fontSize: getProportionateScreenWidth(24),
   fontWeight: FontWeight.bold,
   color: kPrimaryColor,
   height: 1.5,
@@ -96,6 +96,6 @@ final otpInputDecoration = InputDecoration(
 OutlineInputBorder outlineInputBorder() {
   return OutlineInputBorder(
     borderRadius: BorderRadius.circular(getProportionateScreenWidth(15)),
-    borderSide: BorderSide.none,
+    borderSide:const BorderSide(color: kPrimaryColor),
   );
 }

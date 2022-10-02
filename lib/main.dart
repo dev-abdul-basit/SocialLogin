@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:socaillogin/constants.dart';
 import 'package:socaillogin/routes.dart';
 import 'package:socaillogin/theme.dart';
 
 import 'screens/splash_screen/splash_screen.dart';
 
 void main() {
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.white,
+      statusBarColor: kPrimaryColor));
   runApp(const MyApp());
 }
 
@@ -15,7 +22,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Grocer App',
+      title: 'Social Login',
       theme: theme(),
       debugShowCheckedModeBanner: false,
       initialRoute: SplashScreen.routeName,

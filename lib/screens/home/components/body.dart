@@ -19,13 +19,13 @@ class _BodyState extends State<Body> {
       children: <Widget>[
         const CustomAppBar(
           left: 25,
-          top: 30,
+          top: 40,
         ),
         SizedBox(height: getProportionateScreenHeight(24)),
         Padding(
           padding: EdgeInsets.only(
-              left: getProportionateScreenWidth(28.0),
-              right: getProportionateScreenWidth(28.0)),
+              left: getProportionateScreenWidth(24.0),
+              right: getProportionateScreenWidth(24.0)),
           child: Text(
             'BOOKED APPOINTMENT',
             style: headingStyleBA,

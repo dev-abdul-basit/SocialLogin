@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -27,6 +25,7 @@ InputDecorationTheme inputDecorationTheme() {
     // if you r using flutter less then 1.20.* then maybe this is not working properly
     // if we are define our floatingLabelBehavior in our theme then it's not applayed
     floatingLabelBehavior: FloatingLabelBehavior.always,
+    // ignore: prefer_const_constructors
     contentPadding: EdgeInsets.symmetric(horizontal: 42, vertical: 20),
     enabledBorder: outlineInputBorder,
     focusedBorder: outlineInputBorder,
@@ -42,13 +41,17 @@ TextTheme textTheme() {
 }
 
 AppBarTheme appBarTheme() {
-  return const AppBarTheme(
+  return AppBarTheme(
     color: Colors.white,
     elevation: 0,
-    iconTheme: IconThemeData(color: Colors.black),
-    textTheme: TextTheme(
-      headline6: TextStyle(color: Color(0XFF8B8B8B), fontSize: 18),
-    ),
+    iconTheme: const IconThemeData(color: Colors.black),
     systemOverlayStyle: SystemUiOverlayStyle.light,
+    
+    toolbarTextStyle: const TextTheme(
+      headline6: TextStyle(color: Color(0XFF8B8B8B), fontSize: 18),
+    ).bodyText2,
+    titleTextStyle: const TextTheme(
+      headline6: TextStyle(color: Color(0XFF8B8B8B), fontSize: 18),
+    ).headline6,
   );
 }

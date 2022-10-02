@@ -1,10 +1,9 @@
-import 'package:adobe_xd/pinned.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:socaillogin/components/primary_button.dart';
 import 'package:socaillogin/components/secondary_button.dart';
 import 'package:socaillogin/screens/home/homepage.dart';
+import 'package:socaillogin/screens/otp_verify/otp_verify_screen.dart';
 import 'package:socaillogin/screens/sign_in/sign_in_screen.dart';
 import 'package:socaillogin/size_config.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
@@ -143,8 +142,7 @@ class _BodyState extends State<Body> {
             SizedBox(height: getProportionateScreenHeight(8)),
             PrimaryButton(
               press: () {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, HomePage.routeName, (route) => false);
+                Navigator.pushNamed(context, OtpScreen.routeName);
               },
               text: 'SIGN UP',
               color: kPrimaryColor,

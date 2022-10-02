@@ -1,11 +1,32 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
 import '../../../size_config.dart';
 import 'otp_form.dart';
 
-class Body extends StatelessWidget {
+class Body extends StatefulWidget {
   const Body({super.key});
+
+  @override
+  State<Body> createState() => _BodyState();
+}
+
+class _BodyState extends State<Body> {
+  late Timer _timer;
+  int _start = 30;
+  @override
+  void initState() {
+    super.initState();
+    startTimer();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +50,10 @@ class Body extends StatelessWidget {
               InkWell(
                 onTap: () {
                   // OTP code resend
+                  setState(() {
+                    _start = 30;
+                    startTimer();
+                  });
                 },
                 child: const Text(
                   "Resend OTP Code",
@@ -47,15 +72,31 @@ class Body extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Text("This code will expired in "),
-        TweenAnimationBuilder(
-          tween: Tween(begin: 30.0, end: 0.0),
-          duration: const Duration(seconds: 30),
-          builder: (_, value, child) => const Text(
-            "00:00",
-            style: TextStyle(color: kPrimaryColor),
-          ),
+        const SizedBox(width: 10),
+        Text(
+          '00 : $_start',
+          style: const TextStyle(
+              color: kPrimaryColor, fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ],
+    );
+  }
+
+  void startTimer() {
+    const oneSec = Duration(seconds: 1);
+    _timer = Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (_start == 0) {
+          setState(() {
+            timer.cancel();
+          });
+        } else {
+          setState(() {
+            _start--;
+          });
+        }
+      },
     );
   }
 }

@@ -147,8 +147,8 @@ class _BodyState extends State<Body> {
             SizedBox(height: getProportionateScreenHeight(8)),
             PrimaryButton(
               press: () async {
-                
-               // Navigator.pushNamed(context, OtpScreen.routeName);
+                // Navigator.pushNamed(context, OtpScreen.routeName);
+                print('iOS');
                 await FirebaseAuth.instance.verifyPhoneNumber(
                   phoneNumber: phoneCtrl.text,
                   verificationCompleted: (PhoneAuthCredential credential) {},

@@ -131,7 +131,8 @@ class _IntroScreenState extends State<IntroScreen> {
               borderRadius: BorderRadius.circular(25.0),
             ),
           ),
-          baseBtnStyle: TextButton.styleFrom(foregroundColor: const Color(0xffffffff)),
+          baseBtnStyle:
+              TextButton.styleFrom(foregroundColor: const Color(0xffffffff)),
           onDone: () {
             Navigator.of(context).pushAndRemoveUntil(
                 SlideRightRoute(

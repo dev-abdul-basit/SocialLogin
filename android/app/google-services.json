@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "97891266362",
+    "project_id": "drcrypto-1d034",
+    "storage_bucket": "drcrypto-1d034.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:97891266362:android:3b3dda9743a34408b12a03",
+        "android_client_info": {
+          "package_name": "com.example.socaillogin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "97891266362-k0q7qrsd3kquhkdvo0ne9795le4e6v23.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.socaillogin",
+            "certificate_hash": "f3b9bf887b83a29e4f9fd4b3692fecc816a3d613"
+          }
+        },
+        {
+          "client_id": "97891266362-pjq1r7d9dj22drr4d0lmbnbnqtuvjnv7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC56HxsCbZzuvdFm4b3t7eo7YzFqWyes90"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "97891266362-pjq1r7d9dj22drr4d0lmbnbnqtuvjnv7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

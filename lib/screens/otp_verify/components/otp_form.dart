@@ -4,7 +4,6 @@ import 'package:socaillogin/screens/password_screen/password_screen.dart';
 
 import '../../../constants.dart';
 import '../../../size_config.dart';
-import '../../home/homepage.dart';
 
 class OtpForm extends StatefulWidget {
   const OtpForm({

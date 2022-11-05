@@ -99,17 +99,20 @@ class _IntroScreenState extends State<IntroScreen> {
                 width: MediaQuery.of(context).size.width * 0.5,
                 height: MediaQuery.of(context).size.height * 0.5,
               ),
-              footer: PrimaryButton(
-                press: () {
-                  Navigator.of(context).pushAndRemoveUntil(
-                      SlideRightRoute(
-                        page: const SignUpScreen(),
-                      ),
-                      (route) => false);
-                },
-                text: 'GET STARTED',
-                color: Colors.white,
-                textColor: Colors.black,
+              footer: Padding(
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                child: PrimaryButton(
+                  press: () {
+                    Navigator.of(context).pushAndRemoveUntil(
+                        SlideRightRoute(
+                          page: const SignUpScreen(),
+                        ),
+                        (route) => false);
+                  },
+                  text: 'GET STARTED',
+                  color: Colors.white,
+                  textColor: Colors.black,
+                ),
               ),
             ),
           ],
@@ -131,7 +134,8 @@ class _IntroScreenState extends State<IntroScreen> {
               borderRadius: BorderRadius.circular(25.0),
             ),
           ),
-          baseBtnStyle: TextButton.styleFrom(foregroundColor: const Color(0xffffffff)),
+          baseBtnStyle:
+              TextButton.styleFrom(foregroundColor: const Color(0xffffffff)),
           onDone: () {
             Navigator.of(context).pushAndRemoveUntil(
                 SlideRightRoute(

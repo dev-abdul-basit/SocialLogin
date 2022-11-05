@@ -4,6 +4,7 @@ import 'size_config.dart';
 //const kPrimaryBGColor = Color(0xFFF5F5F5);
 const kPrimaryBGColor = Color(0xFFFFFCFC);
 const kPrimaryColor = Color(0xff071a2f);
+
 const kPrimaryLightColor = Color(0xff071a2f);
 const kFormColor = Color(0xFFF6F6F6);
 const kPrimaryGradientColor = LinearGradient(
@@ -96,6 +97,6 @@ final otpInputDecoration = InputDecoration(
 OutlineInputBorder outlineInputBorder() {
   return OutlineInputBorder(
     borderRadius: BorderRadius.circular(getProportionateScreenWidth(15)),
-    borderSide:const BorderSide(color: kPrimaryColor),
+    borderSide: const BorderSide(color: kPrimaryColor),
   );
 }

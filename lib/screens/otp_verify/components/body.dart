@@ -1,10 +1,14 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pinput/pinput.dart';
 import 'package:socaillogin/components/primary_button.dart';
 import 'package:socaillogin/helper/global_config.dart';
+import 'package:socaillogin/routes.dart';
+import 'package:socaillogin/screens/edit_profile/edit_profile_screen.dart';
+import 'package:socaillogin/screens/sign_up/sign_up_screen.dart';
 import 'package:socaillogin/size_config.dart';
 
 import '../../../constants.dart';
@@ -28,7 +32,8 @@ class _BodyState extends State<Body> {
   final pinController = TextEditingController();
   final focusNode = FocusNode();
   final formKey = GlobalKey<FormState>();
-
+  FirebaseAuth auth = FirebaseAuth.instance;
+  var code = '';
   @override
   void dispose() {
     pinController.dispose();
@@ -108,11 +113,11 @@ class _BodyState extends State<Body> {
                     style: headingStyle,
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.all(4.0),
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
                   child: Text(
-                    "Enter the OTP code sent to +92-3430542723",
-                    style: TextStyle(fontSize: 15),
+                    "Enter the OTP code sent to ${SignUpScreen.phoneNumber}",
+                    style: const TextStyle(fontSize: 15),
                   ),
                 ),
                 buildTimer(),
@@ -123,13 +128,15 @@ class _BodyState extends State<Body> {
                   child: Pinput(
                     controller: pinController,
                     focusNode: focusNode,
-                    length: 4,
+                    length: 6,
+                    showCursor: true,
+
                     androidSmsAutofillMethod:
                         AndroidSmsAutofillMethod.smsUserConsentApi,
                     listenForMultipleSmsOnAndroid: true,
                     defaultPinTheme: defaultPinTheme,
                     validator: (value) {
-                      return value == '2222' ? null : 'Pin is incorrect';
+                      return value == code ? null : 'Pin is incorrect';
                     },
                     // onClipboardFound: (value) {
                     //   debugPrint('onClipboardFound: $value');
@@ -140,6 +147,7 @@ class _BodyState extends State<Body> {
                       debugPrint('onCompleted: $pin');
                     },
                     onChanged: (value) {
+                      code = value;
                       debugPrint('onChanged: $value');
                     },
                     cursor: Column(
@@ -174,8 +182,19 @@ class _BodyState extends State<Body> {
                 SizedBox(height: getProportionateScreenHeight(24)),
                 PrimaryButton(
                     text: 'Validate',
-                    press: () {
-                      formKey.currentState!.validate();
+                    press: () async {
+                      try {
+                        formKey.currentState!.validate();
+                        PhoneAuthCredential credential =
+                            PhoneAuthProvider.credential(
+                                smsCode: code,
+                                verificationId: SignUpScreen.verify);
+                        await auth.signInWithCredential(credential);
+                        Navigator.pushNamedAndRemoveUntil(context,
+                            EditProfilePage.routeName, ((route) => false));
+                      } catch (e) {
+                        print('Wrong OTP');
+                      }
                     },
                     color: kPrimaryColor,
                     textColor: kSecondaryColor),

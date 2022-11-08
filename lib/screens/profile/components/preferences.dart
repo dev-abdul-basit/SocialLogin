@@ -1,5 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:socaillogin/helper/global_config.dart';
+import 'package:socaillogin/routes.dart';
 import 'package:socaillogin/screens/edit_profile/edit_profile_screen.dart';
+import 'package:socaillogin/screens/sign_in/sign_in_screen.dart';
+import 'package:socaillogin/screens/sign_up/sign_up_screen.dart';
 
 import '../../../components/custom_logout_dialog.dart';
 import '../../../constants.dart';
@@ -12,6 +17,23 @@ class ProfilePreferences extends StatefulWidget {
 }
 
 class _ProfilePreferencesState extends State<ProfilePreferences> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? user;
+
+
+  @override
+  void initState() {
+    super.initState();
+    user = _auth.currentUser;
+  }
+
+  signOutUser(){
+    if(user != null){
+      _auth.signOut();
+      box!.delete('user_login');
+      Navigator.pushNamedAndRemoveUntil(context,SignUpScreen.routeName,(route)=>false);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -168,7 +190,7 @@ class _ProfilePreferencesState extends State<ProfilePreferences> {
 
                       return CustomLogoutDialog(
                         press: () async {
-                          Navigator.of(context).pop();
+                          signOutUser();
                         },
                         close: () {
                           Navigator.of(context).pop();

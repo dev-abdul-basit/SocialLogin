@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:socaillogin/components/primary_button.dart';
@@ -32,6 +33,32 @@ class _BodyState extends State<Body> {
   String? username;
   String? password;
   bool isVisible = false;
+
+  //check if user is available
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? user;
+  checkAuthentication() async {
+    _auth.authStateChanges().listen((user) {
+      if (user != null) {
+        //Redirect to home
+        print(user.uid);
+
+        if (box!.containsKey("user_login")) {
+          Future.delayed(Duration.zero, () {
+            Navigator.of(context)
+                .pushNamedAndRemoveUntil(HomePage.routeName, (route) => false);
+          });
+        }
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkAuthentication();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -40,7 +67,7 @@ class _BodyState extends State<Body> {
         width: MediaQuery.of(context).size.width,
         //height: MediaQuery.of(context).size.height,
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.fromLTRB(24.0,0,24,24),
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[

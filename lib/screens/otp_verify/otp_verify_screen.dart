@@ -10,8 +10,9 @@ class OtpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    return const Scaffold(
-      body: Body(),
+    return Scaffold(
+      appBar: AppBar(backgroundColor: Colors.transparent),
+      body: const Body(),
     );
   }
 }

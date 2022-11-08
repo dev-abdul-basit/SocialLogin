@@ -1,13 +1,15 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pinput/pinput.dart';
 import 'package:socaillogin/components/primary_button.dart';
 import 'package:socaillogin/helper/global_config.dart';
-import 'package:socaillogin/routes.dart';
-import 'package:socaillogin/screens/edit_profile/edit_profile_screen.dart';
+import 'package:socaillogin/models/user_model.dart';
+
+import 'package:socaillogin/screens/password_screen/password_screen.dart';
 import 'package:socaillogin/screens/sign_up/sign_up_screen.dart';
 import 'package:socaillogin/size_config.dart';
 
@@ -23,6 +25,9 @@ class Body extends StatefulWidget {
 class _BodyState extends State<Body> {
   late Timer _timer;
   int _start = 30;
+  final DatabaseReference _databaseReference =
+      FirebaseDatabase.instance.ref().child('Users');
+  User? user;
   @override
   void initState() {
     super.initState();
@@ -65,14 +70,13 @@ class _BodyState extends State<Body> {
     return SizedBox(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.fromLTRB(24.0, 0, 24, 24),
         child: Form(
           key: formKey,
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(height: getProportionateScreenHeight(24)),
                 Center(
                   child: Stack(
                     alignment: Alignment.center,
@@ -189,10 +193,21 @@ class _BodyState extends State<Body> {
                             PhoneAuthProvider.credential(
                                 smsCode: code,
                                 verificationId: SignUpScreen.verify);
-                        await auth.signInWithCredential(credential);
-                        Navigator.pushNamedAndRemoveUntil(context,
-                            EditProfilePage.routeName, ((route) => false));
+                        await auth
+                            .signInWithCredential(credential)
+                            .whenComplete(() => {});
+                        user = auth.currentUser;
+                        if (user != null) {
+                          print(user!.phoneNumber);
+                          print(user!.uid);
+                          saveUserToFirebaseDB(user!.uid.toString());
+                          // user!.updatePassword('newPassword');
+                        }
                       } catch (e) {
+                        const snackBar = SnackBar(
+                          content: Text('Wrong OTP!'),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         print('Wrong OTP');
                       }
                     },
@@ -239,6 +254,48 @@ class _BodyState extends State<Body> {
         ),
       ),
     );
+  }
+
+  gotoPasswordScreen() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const PasswordScreen(),
+        ));
+  }
+
+  saveUserToFirebaseDB(String uid) async {
+    if (SignUpScreen.phoneNumber.isNotEmpty &&
+        SignUpScreen.verify.isNotEmpty &&
+        user != null &&
+        uid.isNotEmpty &&
+        formKey.currentState!.validate()) {
+      UserModel userModel = UserModel.withId(
+        user!.uid.toString(),
+        'empty',
+        'empty',
+        user!.phoneNumber.toString(),
+        'empty',
+        'empty',
+        'empty',
+        'true',
+        'empty',
+      );
+      await _databaseReference
+          .child(user!.uid.toString())
+          .set(userModel.toJson())
+          .whenComplete(() => {});
+      box!.put('user_login', true);
+      box!.put('name', 'empty');
+      box!.put('email', 'empty');
+      box!.put('contact', user!.phoneNumber.toString());
+      box!.put('address', 'empty');
+      box!.put('status', 'true');
+      box!.put('token', 'empty');
+      box!.put('photoUrl', 'empty');
+
+      gotoPasswordScreen();
+    }
   }
 
   Row buildTimer() {

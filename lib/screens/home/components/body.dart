@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:socaillogin/helper/global_config.dart';
 import 'package:socaillogin/screens/home/components/appointment_list.dart';
 import 'package:socaillogin/size_config.dart';
 
@@ -17,9 +18,11 @@ class _BodyState extends State<Body> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        const CustomAppBar(
+         CustomAppBar(
           left: 25,
           top: 40,
+          image: box!.get('photoUrl')=='empty'?userImage:box!.get('photoUrl'),
+          name: box!.get('name')=='empty'?'':box!.get('name'),
         ),
         SizedBox(height: getProportionateScreenHeight(24)),
         Padding(

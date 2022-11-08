@@ -6,20 +6,17 @@ import '../../../size_config.dart';
 class ProfileHeader extends StatefulWidget {
   const ProfileHeader({
     Key? key,
-    required this.isEdit,
     required this.backPress,
-    required this.editPress,
     required this.cameraPress,
-    required this.icon,
     required this.profileImage,
+    required this.name,
+    required this.isVisible
   }) : super(key: key);
-  final bool isEdit;
-
   final Function backPress;
-  final Function editPress;
   final Function cameraPress;
-  final Icon icon;
   final String profileImage;
+  final String name;
+  final bool isVisible;
 
   @override
   State<ProfileHeader> createState() => _ProfileHeaderState();
@@ -49,7 +46,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     shape: BoxShape.circle,
                     image: DecorationImage(
                       fit: BoxFit.cover,
-                      image: AssetImage(widget.profileImage),
+                      image: NetworkImage(widget.profileImage),
                     ),
                     border: Border.all(color: Colors.white, width: 6.0)),
               ),
@@ -57,7 +54,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 bottom: 50,
                 right: -10,
                 child: Visibility(
-                  visible: widget.isEdit == true ? true : false,
+                  visible: widget.isVisible,
                   child: Container(
                     width: 36,
                     height: 36,
@@ -85,9 +82,9 @@ class _ProfileHeaderState extends State<ProfileHeader> {
           child: InkWell(
             child: Row(
               children: [
-                const Text(
-                  'Abdul Basit',
-                  style: TextStyle(
+                 Text(
+                 widget.name,
+                  style:const TextStyle(
                     fontFamily: 'Poppins-Bold',
                     fontSize: 24,
                     color: Color(0xffffffff),
@@ -98,15 +95,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 SizedBox(
                   width: getProportionateScreenWidth(8),
                 ),
-                Visibility(
-                  visible: widget.isEdit == true ? true : false,
-                  child: IconButton(
-                    onPressed: () {
-                      widget.editPress();
-                    },
-                    icon: widget.icon,
-                  ),
-                ),
+
               ],
             ),
           ),
@@ -115,7 +104,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
           top: 25,
           left: 10,
           child: Visibility(
-            visible: widget.isEdit == true ? true : false,
+            visible: widget.isVisible,
             child: IconButton(
               onPressed: () {
                 widget.backPress();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:socaillogin/helper/global_config.dart';
 
 import 'package:socaillogin/screens/profile/components/preferences.dart';
 import 'package:socaillogin/screens/profile/components/profile_header.dart';
@@ -24,16 +25,12 @@ class _ProfilePageState extends State<ProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           ProfileHeader(
-            profileImage: 'assets/images/user.png',
-            isEdit: false,
+            name: box!.get('name')=='empty'?'':box!.get('name'),
+            profileImage: box!.get('photoUrl')=='empty'?userImage:box!.get('photoUrl'),
             backPress: () {},
-            editPress: () {},
             cameraPress: () {},
-            icon: const Icon(
-              Icons.edit_note_rounded,
-              color: Colors.white,
-              size: 36,
-            ),
+            isVisible: false,
+
           ),
           SizedBox(height: getProportionateScreenHeight(120)),
           const ProfilePreferences(),

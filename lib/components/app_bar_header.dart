@@ -8,8 +8,11 @@ class CustomAppBar extends StatefulWidget {
     Key? key,
     required this.top,
     required this.left,
+    required this.name,
+    required this.image
   }) : super(key: key);
   final double top, left;
+  final String name,image;
   @override
   State<CustomAppBar> createState() => _CustomAppBarState();
 }
@@ -29,21 +32,23 @@ class _CustomAppBarState extends State<CustomAppBar> {
           top: widget.top,
           left: widget.left,
           child: Container(
-            height: 96.0,
-            width: 96.0,
+            height: 72.0,
+            width: 72.0,
             decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                image: const DecorationImage(
+                image:  DecorationImage(
                   fit: BoxFit.cover,
-                  image: AssetImage('assets/images/user.png'),
+                  image: NetworkImage(widget.image),
                 ),
                 border: Border.all(color: const Color(0xffffffff), width: 2.0)),
           ),
         ),
         Positioned(
           top: 70,
+          left: 120,
           child: Text(
-            'Abdul Basit',
+            widget.name,
+            textAlign: TextAlign.start,
             style: appBarHeadingStyle,
           ),
         ),

@@ -7,7 +7,7 @@
 	<key>REVERSED_CLIENT_ID</key>
 	<string>com.googleusercontent.apps.97891266362-jfap4m14nr7v5m960i5cbod08ksv36qe</string>
 	<key>ANDROID_CLIENT_ID</key>
-	<string>97891266362-g2muhb8q4iumo7kc9t3npvv4anqgqufo.apps.googleusercontent.com</string>
+	<string>97891266362-qpqh8l0d12fk7hbljf4pd06pmosipg5n.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyAu4dbV4AQ88ABp4M-4NEJA0BAY4BwJXeg</string>
 	<key>GCM_SENDER_ID</key>
@@ -32,5 +32,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:97891266362:ios:b297b6d092fa2c7bb12a03</string>
+	<key>DATABASE_URL</key>
+	<string>https://drcrypto-1d034-default-rtdb.firebaseio.com</string>
 </dict>
 </plist>

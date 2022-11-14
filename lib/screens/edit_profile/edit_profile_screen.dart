@@ -61,6 +61,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       setState(() {
         imageUrl = downloadUrl;
       });
+
     });
   }
   @override

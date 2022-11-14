@@ -1,31 +1,40 @@
-import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:io';
 import 'package:hive/hive.dart';
 import 'package:socaillogin/constants.dart';
 import 'package:socaillogin/routes.dart';
 import 'package:socaillogin/theme.dart';
-
 import 'helper/global_config.dart';
 import 'screens/splash_screen/splash_screen.dart';
 import 'package:path_provider/path_provider.dart';
 
+
 void main() async {
+
+  //firebase initialize
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
+
+  //ui
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarBrightness: Brightness.light,
       statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Colors.white,
+      systemNavigationBarColor: kFormColor,
       statusBarColor: kPrimaryColor));
+
+  //Hive
   Directory documentsDirectory = await getApplicationDocumentsDirectory();
   Hive.init(documentsDirectory.path);
   box = await Hive.openBox('easyLogin');
+
+
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);

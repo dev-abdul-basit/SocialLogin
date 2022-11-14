@@ -39,7 +39,6 @@ class UserModel {
   UserModel.editwithId(
     this._id,
     this._userName,
-
     this._phone,
     this._email,
     this._address,

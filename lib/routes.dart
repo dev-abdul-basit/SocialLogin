@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:socaillogin/screens/add_event_screen/add_event_screen.dart';
 import 'package:socaillogin/screens/book_appointment/book_appointment.dart';
 import 'package:socaillogin/screens/edit_profile/edit_profile_screen.dart';
 import 'package:socaillogin/screens/home/homepage.dart';
@@ -24,4 +25,5 @@ final Map<String, WidgetBuilder> routes = {
   ProfilePage.routeName: (context) => const ProfilePage(isEdit: true),
   EditProfilePage.routeName: (context) => const EditProfilePage(isEdit: true,route:''),
   BookAppointmentPage.routeName: (context) => const BookAppointmentPage(),
+  AddEventScreen.routeName: (context) => const AddEventScreen(),
 };

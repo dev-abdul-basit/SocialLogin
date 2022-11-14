@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:socaillogin/components/primary_button.dart';
+
 import 'package:socaillogin/constants.dart';
 import 'package:socaillogin/size_config.dart';
 

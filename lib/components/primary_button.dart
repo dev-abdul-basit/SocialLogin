@@ -22,8 +22,8 @@ class PrimaryButton extends StatelessWidget {
         children: <Widget>[
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-                primary: color,
-                onSurface: color,
+                backgroundColor: color,
+                disabledForegroundColor: color.withOpacity(0.38), disabledBackgroundColor: color.withOpacity(0.12),
                 textStyle: TextStyle(
                   fontFamily: 'Poppins-Bold',
                   fontSize: 18,

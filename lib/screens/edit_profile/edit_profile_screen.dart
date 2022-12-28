@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,12 +11,10 @@ import 'package:socaillogin/helper/global_config.dart';
 import 'package:socaillogin/helper/keyboard.dart';
 import 'package:socaillogin/models/user_model.dart';
 import 'package:socaillogin/screens/home/homepage.dart';
-
 import 'package:socaillogin/screens/profile/components/profile_header.dart';
 import 'package:socaillogin/size_config.dart';
 
 import '../../constants.dart';
-import 'dart:async';
 
 class EditProfilePage extends StatefulWidget {
   static String routeName = '/editProfile';
@@ -31,16 +30,15 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-
   TextEditingController nameCtrl = TextEditingController();
   TextEditingController emailctrl = TextEditingController();
   TextEditingController contactctrl = TextEditingController();
-  TextEditingController adressctrl = TextEditingController();
+//  TextEditingController adressctrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   String? name;
   String? email;
   String? contact;
-  String? adress;
+  // String? adress;
   final ImagePicker _picker = ImagePicker();
   File? _selectedImage;
   String imageUrl = 'empty';
@@ -52,7 +50,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       FirebaseDatabase.instance.ref().child('Users');
   bool isLoading = false;
   final Reference _storageReference =
-  FirebaseStorage.instance.ref().child("user_images");
+      FirebaseStorage.instance.ref().child("user_images");
   void uploadImageToFirebase(File file, String fileName) async {
     file.absolute.existsSync();
     //upload
@@ -61,9 +59,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
       setState(() {
         imageUrl = downloadUrl;
       });
-
     });
   }
+
   @override
   void initState() {
     super.initState();
@@ -71,41 +69,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (user != null) {
       contactctrl.text = user!.phoneNumber.toString();
     }
-      if (box!.get('name') == 'empty') {
-        nameCtrl.text = '';
-      }else{
-        nameCtrl.text = box!.get('name');
-      }
+    if (box!.get('name') == 'empty') {
+      nameCtrl.text = '';
+    } else {
+      nameCtrl.text = box!.get('name');
+    }
     if (box!.get('email') == 'empty') {
       emailctrl.text = '';
-    }else{
+    } else {
       emailctrl.text = box!.get('email');
     }
-    if (box!.get('address') == 'empty') {
-      adressctrl.text = '';
-    }else{
-      adressctrl.text = box!.get('address');
-    }
+
     if (box!.get('photoUrl') == 'empty') {
-     imageUrl = 'empty';
-    }else{
-     imageUrl = box!.get('photoUrl');
+      imageUrl = 'empty';
+    } else {
+      imageUrl = box!.get('photoUrl');
     }
-
   }
-
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:Column(
+      body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           ProfileHeader(
-            name: box!.get('name')=='empty'?'':box!.get('name'),
-            profileImage:
-                 imageUrl == 'empty' ? userImage : imageUrl,
+            name: box!.get('name') == 'empty' ? '' : box!.get('name'),
+            profileImage: imageUrl == 'empty' ? userImage : imageUrl,
             backPress: () {
               if (widget.route == 'firstLogin') {
                 Navigator.pushNamedAndRemoveUntil(
@@ -133,8 +123,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     buildEmailFormField(),
                     SizedBox(height: getProportionateScreenHeight(8)),
                     buildContactFormField(),
-                    SizedBox(height: getProportionateScreenHeight(8)),
-                    buildAdressFormField(),
                     SizedBox(height: getProportionateScreenHeight(28)),
                   ],
                 ),
@@ -145,7 +133,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ],
       ),
       bottomNavigationBar: Visibility(
-
         child: Padding(
           padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
           child: PrimaryButton(
@@ -165,8 +152,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (_formKey.currentState!.validate() &&
         nameCtrl.text.isNotEmpty &&
         contactctrl.text.isNotEmpty &&
-        emailctrl.text.isNotEmpty &&
-        adressctrl.text.isNotEmpty) {
+        emailctrl.text.isNotEmpty) {
       _formKey.currentState!.save();
       KeyboardUtil.hideKeyboard(context);
       UserModel userModel = UserModel.editwithId(
@@ -174,25 +160,26 @@ class _EditProfilePageState extends State<EditProfilePage> {
         nameCtrl.text,
         user!.phoneNumber.toString(),
         emailctrl.text,
-        adressctrl.text,
-        'empty',
+        imageUrl,
         box!.get('status'),
         box!.get('token'),
+        box!.get('price2'),
+        box!.get('profitLoss'),
+        box!.get('plStatus'),
       );
 
       await _databaseReference
           .child(user!.uid.toString())
-          .update(userModel.toJsonEdit());
-
-      box!.put('name', nameCtrl.text);
-      box!.put('email', emailctrl.text);
-      box!.put('contact', user!.phoneNumber.toString());
-      box!.put('address', adressctrl.text);
-      box!.put('status', 'true');
-      box!.put('token', box!.get('token'));
-      box!.put('photoUrl', 'empty');
-
-      gotoHomeScreen();
+          .update(userModel.toJsonEdit())
+          .then((value) => {
+                box!.put('name', nameCtrl.text),
+                box!.put('email', emailctrl.text),
+                box!.put('contact', user!.phoneNumber.toString()),
+                box!.put('status', box!.get('status')),
+                box!.put('token', box!.get('token')),
+                box!.put('photoUrl', imageUrl),
+                gotoHomeScreen(),
+              });
     }
   }
 
@@ -203,7 +190,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   TextFormField buildNameFormField() {
     return TextFormField(
-
       maxLines: 1,
       controller: nameCtrl,
       cursorColor: kPrimaryColor,
@@ -250,7 +236,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   TextFormField buildEmailFormField() {
     return TextFormField(
-
       maxLines: 1,
       controller: emailctrl,
       autocorrect: false,
@@ -259,6 +244,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
       validator: (value) {
         if (value!.isEmpty) {
           return kEmailNullError;
+        } else if (!emailValidatorRegExp.hasMatch(value)) {
+          return kInvalidEmailError;
         }
         return null;
       },
@@ -295,7 +282,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   TextFormField buildContactFormField() {
     return TextFormField(
-      enabled: false,
+      // enabled: false,
       maxLines: 1,
       controller: contactctrl,
       cursorColor: kPrimaryColor,
@@ -340,70 +327,35 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  TextFormField buildAdressFormField() {
-    return TextFormField(
-
-      controller: adressctrl,
-      autocorrect: false,
-      maxLines: 3,
-      cursorColor: kPrimaryColor,
-      onSaved: (newValue) => adress = newValue!,
-      validator: (value) {
-        if (value!.isEmpty) {
-          return 'Please Enter Adress';
-        }
-        return null;
-      },
-      textInputAction: TextInputAction.done,
-      decoration: InputDecoration(
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: kPrimaryColor),
-        ),
-        disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(style: BorderStyle.none),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: kPrimaryColor),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: Colors.red),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: kPrimaryColor),
-        ),
-        hintText: 'Address',
-        labelText: 'Address',
-        hintStyle: TextStyle(color: kPrimaryColor.withOpacity(0.5)),
-        filled: false,
-        labelStyle: TextStyle(color: kPrimaryColor.withOpacity(0.5)),
-      ),
-    );
-  }
-
   //Camera Method
   Future openCamera() async {
     Navigator.of(context).pop();
-    var imageFrmCamera = await _picker.pickImage(source: ImageSource.camera,imageQuality: 50,maxHeight: 120,maxWidth: 120,);
+    var imageFrmCamera = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 50,
+      maxHeight: 120,
+      maxWidth: 120,
+    );
     setState(() {
       _selectedImage = File(imageFrmCamera!.path);
       fileName = _selectedImage!.path.split('/').last;
-      uploadImageToFirebase(_selectedImage!,fileName!);
+      uploadImageToFirebase(_selectedImage!, fileName!);
     });
   }
 
   //Gallery method
   Future openGallery() async {
     Navigator.of(context).pop();
-    var pickedFile = await _picker.pickImage(source: ImageSource.gallery,imageQuality: 50,maxHeight: 120,maxWidth: 120,);
+    var pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 50,
+      maxHeight: 120,
+      maxWidth: 120,
+    );
     setState(() {
       _selectedImage = File(pickedFile!.path);
       fileName = _selectedImage!.path.split('/').last;
-      uploadImageToFirebase(_selectedImage!,fileName!);
+      uploadImageToFirebase(_selectedImage!, fileName!);
     });
   }
 
@@ -422,7 +374,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               children: <Widget>[
                 GestureDetector(
                   onTap: openCamera,
-                  child:  const Text("Take a Picture"),
+                  child: const Text("Take a Picture"),
                 ),
                 const Padding(
                   padding: EdgeInsets.all(8.0),
@@ -436,7 +388,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
                 GestureDetector(
                   onTap: openGallery,
-                  child:const  Text("Open Gallery"),
+                  child: const Text("Open Gallery"),
                 ),
               ],
             ),

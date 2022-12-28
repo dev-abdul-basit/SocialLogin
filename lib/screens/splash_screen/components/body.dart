@@ -20,8 +20,9 @@ class _BodyState extends State<Body> {
       if (user != null) {
         //Redirect to home
         print(user.uid);
-
+        print('0');
         if (box!.containsKey("user_login")) {
+          print('1');
           Future.delayed(Duration.zero, () {
             Navigator.of(context)
                 .pushNamedAndRemoveUntil(HomePage.routeName, (route) => false);

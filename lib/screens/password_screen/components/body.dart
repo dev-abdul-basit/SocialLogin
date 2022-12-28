@@ -1,15 +1,15 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:socaillogin/screens/home/homepage.dart';
-import 'dart:math';
+import 'package:flutter_svg/svg.dart';
+import 'package:socaillogin/components/primary_button.dart';
+
 import '../../../constants.dart';
 import '../../../helper/global_config.dart';
 import '../../../helper/keyboard.dart';
 import '../../../size_config.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:socaillogin/components/primary_button.dart';
-
 import '../../edit_profile/edit_profile_screen.dart';
 
 class Body extends StatefulWidget {
@@ -161,25 +161,8 @@ class _BodyState extends State<Body> {
                 child: Align(
                   alignment: FractionalOffset.bottomCenter,
                   child: PrimaryButton(
-                    press: () async {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        setState(() async {
-                          try {
-                            if (user != null) {
-                              await _databaseReference
-                                  .child(user!.uid.toString())
-                                  .update({
-                                "password": passwordctrl.text,
-                              });
-                              gotoNextScreen();
-                            }
-                          } catch (e) {
-                            print(e.toString());
-                          }
-                        });
-                        KeyboardUtil.hideKeyboard(context);
-                      }
+                    press: () {
+                      updatePassword();
                     },
                     text: 'SAVE',
                     color: kPrimaryColor,
@@ -193,6 +176,22 @@ class _BodyState extends State<Body> {
         ),
       ),
     );
+  }
+
+  Future<void> updatePassword() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      KeyboardUtil.hideKeyboard(context);
+      try {
+        if (user != null) {
+          await _databaseReference.child(user!.uid.toString()).update({
+            "password": passwordctrl.text,
+          }).then((value) => gotoNextScreen());
+        }
+      } catch (e) {
+        print(e.toString());
+      }
+    }
   }
 
   gotoNextScreen() {

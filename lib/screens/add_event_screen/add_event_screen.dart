@@ -1,4 +1,3 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/calendar/v3.dart' as calendar;
@@ -7,7 +6,10 @@ import 'package:socaillogin/constants.dart';
 import 'package:socaillogin/helper/keyboard.dart';
 
 import '../../gCalender/calendar_client.dart';
+import '../../helper/global_config.dart';
 import '../../models/event_info.dart';
+import '../../models/notification_model.dart';
+import '../../utils/push_message.dart';
 import '../../utils/storage.dart';
 import '../book_appointment/components/confirmation_dialog.dart';
 import '../home/homepage.dart';
@@ -17,11 +19,9 @@ class AddEventScreen extends StatefulWidget {
   const AddEventScreen({Key? key}) : super(key: key);
   @override
   State<AddEventScreen> createState() => _AddEventScreenState();
-
 }
 
 class _AddEventScreenState extends State<AddEventScreen> {
-
   Storage storage = Storage();
   CalendarClient calendarClient = CalendarClient();
 
@@ -112,14 +112,16 @@ class _AddEventScreenState extends State<AddEventScreen> {
     }
   }
 
-
   User? user;
- final  FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-
+  var now = DateTime.now();
+  var formatterDate = DateFormat('dd/MM/yy');
+  var formatterTime = DateFormat('kk:mm');
+  String? actualDate;
+  String? actualTime;
   @override
   void initState() {
-
     user = _auth.currentUser;
     textControllerDate = TextEditingController();
     textControllerStartTime = TextEditingController();
@@ -133,6 +135,9 @@ class _AddEventScreenState extends State<AddEventScreen> {
     textFocusNodeDesc = FocusNode();
     textFocusNodeLocation = FocusNode();
     textFocusNodeAttendee = FocusNode();
+
+    actualDate = formatterDate.format(now);
+    actualTime = formatterTime.format(now);
 
     super.initState();
   }
@@ -149,7 +154,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
         iconTheme: const IconThemeData(
           color: Colors.grey, //change your color here
         ),
-        title:const Text(
+        title: const Text(
           'Create Event',
           style: TextStyle(
             color: kPrimaryColor,
@@ -162,7 +167,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
           Container(
             color: Colors.white,
             child: SingleChildScrollView(
-              physics:const BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               child: Padding(
                 padding: const EdgeInsets.only(left: 16.0, right: 16.0),
                 child: Form(
@@ -170,22 +175,22 @@ class _AddEventScreenState extends State<AddEventScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                     const Text(
+                      const Text(
                         'This will add a new event to the events list. You can also add video conferencing option and choose to notify the attendees of this event.',
                         style: TextStyle(
                           color: Colors.black87,
-                          fontFamily: 'Raleway',
+                          fontFamily: 'Poppins-Bold',
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
                         ),
                       ),
-                     const SizedBox(height: 10),
-                   const   Text(
+                      const SizedBox(height: 10),
+                      const Text(
                         'You will have access to modify or remove the event afterwards.',
                         style: TextStyle(
                           color: Colors.grey,
-                          fontFamily: 'Raleway',
+                          fontFamily: 'Poppins-Bold',
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
@@ -197,7 +202,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                           text: 'Select Date',
                           style: TextStyle(
                             color: kPrimaryColor,
-                            fontFamily: 'Raleway',
+                            fontFamily: 'Poppins-Bold',
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1,
@@ -225,25 +230,34 @@ class _AddEventScreenState extends State<AddEventScreen> {
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
                         ),
-                        decoration:  InputDecoration(
+                        decoration: InputDecoration(
                           disabledBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: kPrimaryColor, width: 1),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 1),
                           ),
                           enabledBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: kPrimaryColor, width: 1),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 1),
                           ),
                           focusedBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: kPrimaryColor, width: 2),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 2),
                           ),
                           errorBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: Colors.redAccent, width: 2),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: Colors.redAccent, width: 2),
                           ),
                           border: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
                           ),
                           contentPadding: const EdgeInsets.only(
                             left: 16,
@@ -257,11 +271,12 @@ class _AddEventScreenState extends State<AddEventScreen> {
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
                           ),
-                          errorText: isEditingDate && textControllerDate!.text != null
-                              ? textControllerDate!.text.isNotEmpty
-                              ? null
-                              : 'Date can\'t be empty'
-                              : null,
+                          errorText:
+                              isEditingDate && textControllerDate!.text != null
+                                  ? textControllerDate!.text.isNotEmpty
+                                      ? null
+                                      : 'Date can\'t be empty'
+                                  : null,
                           errorStyle: const TextStyle(
                             fontSize: 12,
                             color: Colors.redAccent,
@@ -274,7 +289,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                           text: 'Start Time',
                           style: TextStyle(
                             color: kPrimaryColor,
-                            fontFamily: 'Raleway',
+                            fontFamily: 'Poppins-Bold',
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1,
@@ -303,23 +318,32 @@ class _AddEventScreenState extends State<AddEventScreen> {
                         ),
                         decoration: InputDecoration(
                           disabledBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: kPrimaryColor, width: 1),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 1),
                           ),
                           enabledBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: kPrimaryColor, width: 1),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 1),
                           ),
                           focusedBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: kPrimaryColor, width: 2),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 2),
                           ),
                           errorBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: Colors.redAccent, width: 2),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: Colors.redAccent, width: 2),
                           ),
                           border: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
                           ),
                           contentPadding: const EdgeInsets.only(
                             left: 16,
@@ -333,10 +357,11 @@ class _AddEventScreenState extends State<AddEventScreen> {
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
                           ),
-                          errorText: isEditingStartTime && textControllerStartTime!.text != null
+                          errorText: isEditingStartTime &&
+                                  textControllerStartTime!.text != null
                               ? textControllerStartTime!.text.isNotEmpty
-                              ? null
-                              : 'Start time can\'t be empty'
+                                  ? null
+                                  : 'Start time can\'t be empty'
                               : null,
                           errorStyle: const TextStyle(
                             fontSize: 12,
@@ -350,7 +375,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                           text: 'End Time',
                           style: TextStyle(
                             color: kPrimaryColor,
-                            fontFamily: 'Raleway',
+                            fontFamily: 'Poppins-Bold',
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1,
@@ -368,7 +393,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                       ),
                       const SizedBox(height: 10),
                       TextFormField(
-                        cursorColor:kPrimaryColor,
+                        cursorColor: kPrimaryColor,
                         controller: textControllerEndTime,
                         onTap: () => _selectEndTime(context),
                         readOnly: true,
@@ -379,23 +404,32 @@ class _AddEventScreenState extends State<AddEventScreen> {
                         ),
                         decoration: InputDecoration(
                           disabledBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: kPrimaryColor, width: 1),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 1),
                           ),
                           enabledBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: kPrimaryColor, width: 1),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 1),
                           ),
                           focusedBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: kPrimaryColor, width: 2),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 2),
                           ),
                           errorBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: Colors.redAccent, width: 2),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: Colors.redAccent, width: 2),
                           ),
                           border: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
                           ),
                           contentPadding: const EdgeInsets.only(
                             left: 16,
@@ -409,10 +443,11 @@ class _AddEventScreenState extends State<AddEventScreen> {
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
                           ),
-                          errorText: isEditingEndTime && textControllerEndTime!.text != null
+                          errorText: isEditingEndTime &&
+                                  textControllerEndTime!.text != null
                               ? textControllerEndTime!.text.isNotEmpty
-                              ? null
-                              : 'End time can\'t be empty'
+                                  ? null
+                                  : 'End time can\'t be empty'
                               : null,
                           errorStyle: const TextStyle(
                             fontSize: 12,
@@ -426,7 +461,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                           text: 'Title',
                           style: TextStyle(
                             color: kPrimaryColor,
-                            fontFamily: 'Raleway',
+                            fontFamily: 'Poppins-Bold',
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1,
@@ -465,32 +500,42 @@ class _AddEventScreenState extends State<AddEventScreen> {
                         },
                         onFieldSubmitted: (value) {
                           textFocusNodeTitle!.unfocus();
-                          FocusScope.of(context).requestFocus(textFocusNodeDesc);
+                          FocusScope.of(context)
+                              .requestFocus(textFocusNodeDesc);
                         },
                         style: const TextStyle(
                           color: Colors.black87,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
                         ),
-                        decoration:  InputDecoration(
+                        decoration: InputDecoration(
                           disabledBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: Colors.grey, width: 1),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: Colors.grey, width: 1),
                           ),
                           enabledBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: kPrimaryColor, width: 1),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 1),
                           ),
                           focusedBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color:kPrimaryColor, width: 2),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 2),
                           ),
                           errorBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: Colors.redAccent, width: 2),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: Colors.redAccent, width: 2),
                           ),
                           border: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
                           ),
                           contentPadding: const EdgeInsets.only(
                             left: 16,
@@ -504,7 +549,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
                           ),
-
                           errorStyle: const TextStyle(
                             fontSize: 12,
                             color: Colors.redAccent,
@@ -517,7 +561,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                           text: 'Description',
                           style: TextStyle(
                             color: kPrimaryColor,
-                            fontFamily: 'Raleway',
+                            fontFamily: 'Poppins-Bold',
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1,
@@ -556,32 +600,42 @@ class _AddEventScreenState extends State<AddEventScreen> {
                         },
                         onFieldSubmitted: (value) {
                           textFocusNodeDesc!.unfocus();
-                          FocusScope.of(context).requestFocus(textFocusNodeLocation);
+                          FocusScope.of(context)
+                              .requestFocus(textFocusNodeLocation);
                         },
                         style: const TextStyle(
                           color: Colors.black87,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
                         ),
-                        decoration:  InputDecoration(
+                        decoration: InputDecoration(
                           disabledBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: Colors.grey, width: 1),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: Colors.grey, width: 1),
                           ),
                           enabledBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: kPrimaryColor, width: 1),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 1),
                           ),
                           focusedBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: kPrimaryColor, width: 2),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 2),
                           ),
                           errorBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: Colors.redAccent, width: 2),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: Colors.redAccent, width: 2),
                           ),
                           border: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
                           ),
                           contentPadding: const EdgeInsets.only(
                             left: 16,
@@ -603,7 +657,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                           text: 'Location',
                           style: TextStyle(
                             color: kPrimaryColor,
-                            fontFamily: 'Raleway',
+                            fontFamily: 'Poppins-Bold',
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1,
@@ -641,32 +695,42 @@ class _AddEventScreenState extends State<AddEventScreen> {
                         },
                         onFieldSubmitted: (value) {
                           textFocusNodeLocation!.unfocus();
-                          FocusScope.of(context).requestFocus(textFocusNodeAttendee);
+                          FocusScope.of(context)
+                              .requestFocus(textFocusNodeAttendee);
                         },
                         style: const TextStyle(
                           color: Colors.black87,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
                         ),
-                        decoration:  InputDecoration(
+                        decoration: InputDecoration(
                           disabledBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: Colors.grey, width: 1),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: Colors.grey, width: 1),
                           ),
                           enabledBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color:kPrimaryColor, width: 1),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 1),
                           ),
                           focusedBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: kPrimaryColor, width: 2),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: kPrimaryColor, width: 2),
                           ),
                           errorBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(color: Colors.redAccent, width: 2),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                            borderSide:
+                                BorderSide(color: Colors.redAccent, width: 2),
                           ),
                           border: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
                           ),
                           contentPadding: const EdgeInsets.only(
                             left: 16,
@@ -688,7 +752,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                           text: 'Attendees',
                           style: TextStyle(
                             color: kPrimaryColor,
-                            fontFamily: 'Raleway',
+                            fontFamily: 'Poppins-Bold',
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1,
@@ -750,27 +814,26 @@ class _AddEventScreenState extends State<AddEventScreen> {
                               textCapitalization: TextCapitalization.none,
                               textInputAction: TextInputAction.done,
                               onSaved: (newValue) => currentEmail = newValue!,
-
                               onFieldSubmitted: (value) {
                                 textFocusNodeAttendee!.unfocus();
                               },
-
                               onChanged: (value) {
                                 if (value.isNotEmpty) {
                                   setState(() {
                                     currentEmail = value;
-                                      _formKey.currentState!.validate();
+                                    _formKey.currentState!.validate();
                                   });
-                                } else if (emailValidatorRegExp.hasMatch(value)) {
-
-                                   _formKey.currentState!.validate();
+                                } else if (emailValidatorRegExp
+                                    .hasMatch(value)) {
+                                  _formKey.currentState!.validate();
                                 }
                                 return;
                               },
                               validator: (value) {
                                 if (value!.isEmpty) {
                                   return kEmailNullError;
-                                } else if (!emailValidatorRegExp.hasMatch(value)) {
+                                } else if (!emailValidatorRegExp
+                                    .hasMatch(value)) {
                                   return kInvalidEmailError;
                                 }
                                 return null;
@@ -782,23 +845,32 @@ class _AddEventScreenState extends State<AddEventScreen> {
                               ),
                               decoration: InputDecoration(
                                 disabledBorder: const OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                  borderSide: BorderSide(color: Colors.grey, width: 1),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                  borderSide:
+                                      BorderSide(color: Colors.grey, width: 1),
                                 ),
                                 enabledBorder: const OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                  borderSide: BorderSide(color: kPrimaryColor, width: 1),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                  borderSide: BorderSide(
+                                      color: kPrimaryColor, width: 1),
                                 ),
                                 focusedBorder: const OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                  borderSide: BorderSide(color:kPrimaryColor, width: 2),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                  borderSide: BorderSide(
+                                      color: kPrimaryColor, width: 2),
                                 ),
                                 errorBorder: const OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                  borderSide: BorderSide(color: Colors.redAccent, width: 2),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                  borderSide: BorderSide(
+                                      color: Colors.redAccent, width: 2),
                                 ),
                                 border: const OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
                                 ),
                                 contentPadding: const EdgeInsets.only(
                                   left: 16,
@@ -812,7 +884,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0.5,
                                 ),
-
                                 errorStyle: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.redAccent,
@@ -823,24 +894,26 @@ class _AddEventScreenState extends State<AddEventScreen> {
                           IconButton(
                             icon: const Icon(
                               Icons.check_circle,
-                              color:kPrimaryColor,
+                              color: kPrimaryColor,
                               size: 35,
                             ),
                             onPressed: () {
                               setState(() {
                                 isEditingEmail = true;
                               });
-                              if (emailValidatorRegExp.hasMatch(currentEmail!)) {
+                              if (emailValidatorRegExp
+                                  .hasMatch(currentEmail!)) {
                                 setState(() {
                                   textFocusNodeAttendee!.unfocus();
-                                  calendar.EventAttendee eventAttendee = calendar.EventAttendee();
+                                  calendar.EventAttendee eventAttendee =
+                                      calendar.EventAttendee();
                                   eventAttendee.email = currentEmail;
 
                                   attendeeEmails.add(eventAttendee);
 
-                                  textControllerAttendee!.text = '';
-                                  currentEmail = null;
-                                  isEditingEmail = false;
+                                  // textControllerAttendee!.text = '';
+                                  // currentEmail = null;
+                                  // isEditingEmail = false;
                                 });
                               }
                             },
@@ -859,7 +932,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                                   'Notify attendees',
                                   style: TextStyle(
                                     color: kPrimaryColor,
-                                    fontFamily: 'Raleway',
+                                    fontFamily: 'Poppins-Bold',
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 0.5,
@@ -887,7 +960,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                             'Add video conferencing',
                             style: TextStyle(
                               color: kPrimaryColor,
-                              fontFamily: 'Raleway',
+                              fontFamily: 'Poppins-Bold',
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.5,
@@ -908,166 +981,179 @@ class _AddEventScreenState extends State<AddEventScreen> {
                       Container(
                         width: double.maxFinite,
                         child: ElevatedButton(
-
                           onPressed: isDataStorageInProgress
                               ? null
                               : () async {
-                            setState(() {
-                              isErrorTime = false;
-                              isDataStorageInProgress = true;
-                            });
+                                  setState(() {
+                                    isErrorTime = false;
+                                    isDataStorageInProgress = true;
+                                  });
 
-                            textFocusNodeTitle!.unfocus();
-                            textFocusNodeDesc!.unfocus();
-                            textFocusNodeLocation!.unfocus();
-                            textFocusNodeAttendee!.unfocus();
+                                  textFocusNodeTitle!.unfocus();
+                                  textFocusNodeDesc!.unfocus();
+                                  textFocusNodeLocation!.unfocus();
+                                  textFocusNodeAttendee!.unfocus();
 
-                            if (_formKey.currentState!.validate() &&
-                                selectedDate != null &&
-                                selectedStartTime != null &&
-                                selectedEndTime != null &&
-                                currentTitle != null) {
-                              _formKey.currentState!.save();
-                              int startTimeInEpoch = DateTime(
-                                selectedDate.year,
-                                selectedDate.month,
-                                selectedDate.day,
-                                selectedStartTime.hour,
-                                selectedStartTime.minute,
-                              ).millisecondsSinceEpoch;
+                                  if (_formKey.currentState!.validate() &&
+                                      selectedDate != null &&
+                                      selectedStartTime != null &&
+                                      selectedEndTime != null &&
+                                      currentTitle != null) {
+                                    _formKey.currentState!.save();
+                                    int startTimeInEpoch = DateTime(
+                                      selectedDate.year,
+                                      selectedDate.month,
+                                      selectedDate.day,
+                                      selectedStartTime.hour,
+                                      selectedStartTime.minute,
+                                    ).millisecondsSinceEpoch;
 
-                              int endTimeInEpoch = DateTime(
-                                selectedDate.year,
-                                selectedDate.month,
-                                selectedDate.day,
-                                selectedEndTime.hour,
-                                selectedEndTime.minute,
-                              ).millisecondsSinceEpoch;
+                                    int endTimeInEpoch = DateTime(
+                                      selectedDate.year,
+                                      selectedDate.month,
+                                      selectedDate.day,
+                                      selectedEndTime.hour,
+                                      selectedEndTime.minute,
+                                    ).millisecondsSinceEpoch;
 
-                              print('DIFFERENCE: ${endTimeInEpoch - startTimeInEpoch}');
+                                    print(
+                                        'DIFFERENCE: ${endTimeInEpoch - startTimeInEpoch}');
 
-                              print('Start Time: ${DateTime.fromMillisecondsSinceEpoch(startTimeInEpoch)}');
-                              print('End Time: ${DateTime.fromMillisecondsSinceEpoch(endTimeInEpoch)}');
+                                    print(
+                                        'Start Time: ${DateTime.fromMillisecondsSinceEpoch(startTimeInEpoch)}');
+                                    print(
+                                        'End Time: ${DateTime.fromMillisecondsSinceEpoch(endTimeInEpoch)}');
 
-                              if (endTimeInEpoch - startTimeInEpoch > 0) {
-                                print('here:1');
-                                if (_formKey.currentState!.validate() && user != null) {
-                                  _formKey.currentState!.save();
-                                  KeyboardUtil.hideKeyboard(context);
-                                  print('here:2');
-                                  await calendarClient
-                                      .insert(
-                                      title: currentTitle!,
-                                      description: currentDesc ?? '',
-                                      location: currentLocation!,
-                                      attendeeEmailList: attendeeEmails,
-                                      shouldNotifyAttendees: shouldNofityAttendees,
-                                      hasConferenceSupport: hasConferenceSupport,
-                                      startTime: DateTime.fromMillisecondsSinceEpoch(startTimeInEpoch),
-                                      endTime: DateTime.fromMillisecondsSinceEpoch(endTimeInEpoch))
-                                      .then((eventData) async {
-                                    String eventId = eventData['id']!;
-                                    String eventLink = eventData['link']!;
+                                    if (endTimeInEpoch - startTimeInEpoch > 0) {
+                                      print('here:1');
+                                      if (_formKey.currentState!.validate() &&
+                                          user != null) {
+                                        _formKey.currentState!.save();
+                                        KeyboardUtil.hideKeyboard(context);
+                                        print('here:2');
+                                        await calendarClient
+                                            .insert(
+                                                title: currentTitle!,
+                                                description: currentDesc ?? '',
+                                                location: currentLocation!,
+                                                attendeeEmailList:
+                                                    attendeeEmails,
+                                                shouldNotifyAttendees:
+                                                    shouldNofityAttendees,
+                                                hasConferenceSupport:
+                                                    hasConferenceSupport,
+                                                startTime: DateTime
+                                                    .fromMillisecondsSinceEpoch(
+                                                        startTimeInEpoch),
+                                                endTime: DateTime
+                                                    .fromMillisecondsSinceEpoch(
+                                                        endTimeInEpoch))
+                                            .then((eventData) async {
+                                          String eventId = eventData['id']!;
+                                          String eventLink = eventData['link']!;
 
-                                    List<String> emails = [];
+                                          List<String> emails = [];
 
-                                    for (int i = 0; i < attendeeEmails.length; i++) {
-                                      emails.add(attendeeEmails[i].email!);
-                                    }
+                                          for (int i = 0;
+                                              i < attendeeEmails.length;
+                                              i++) {
+                                            emails
+                                                .add(attendeeEmails[i].email!);
+                                          }
 
-                                    EventInfo eventInfo = EventInfo(
-                                      id: eventId,
-                                      name: currentTitle!,
-                                      description: currentDesc ?? '',
-                                      location: currentLocation!,
-                                      link: eventLink,
-                                      date: textControllerDate!.text,
-                                      attendeeEmails: emails,
-                                      shouldNotifyAttendees: shouldNofityAttendees,
-                                      hasConfereningSupport: hasConferenceSupport,
-                                      startTimeInEpoch: startTimeInEpoch,
-                                      endTimeInEpoch: endTimeInEpoch,
-                                      status: 'Booked'
-                                    );
+                                          EventInfo eventInfo = EventInfo(
+                                              id: eventId,
+                                              name: currentTitle!,
+                                              description: currentDesc ?? '',
+                                              location: currentLocation!,
+                                              link: eventLink,
+                                              date: textControllerDate!.text,
+                                              attendeeEmails: emails,
+                                              shouldNotifyAttendees:
+                                                  shouldNofityAttendees,
+                                              hasConfereningSupport:
+                                                  hasConferenceSupport,
+                                              startTimeInEpoch:
+                                                  startTimeInEpoch,
+                                              endTimeInEpoch: endTimeInEpoch,
+                                              status: 'Booked');
 
-                                    await storage
-                                        .storeEventData(eventInfo,user!.uid.toString())
-                                        .whenComplete(() =>   showDialog(
-                                        barrierDismissible: false,
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return DialogConfirmation(
-                                            details:
-                                            'Your appointment is being confirmed  with Dr.Crypto on 3rd Sept',
-                                            subTitle: 'Your Appointment Successful',
-                                            title: 'Thank you!',
-                                            press: () {
-                                              Navigator.of(context).pushNamedAndRemoveUntil(
-                                                  HomePage.routeName, (route) => false);
-                                            },
-                                          );
-                                        }))
-                                        .catchError(
+                                          await storage
+                                              .storeEventData(eventInfo,
+                                                  user!.uid.toString())
+                                              .whenComplete(() =>
+                                                  saveNotificationToDB(
+                                                      'Congratulations',
+                                                      'Your Appointment for ' +
+                                                          actualDate! +
+                                                          " at " +
+                                                          actualTime! +
+                                                          " has been confirmed"))
+                                              .catchError(
+                                                (e) => print(e),
+                                              );
+                                        }).catchError(
                                           (e) => print(e),
-                                    );
-                                  }).catchError(
-                                        (e) => print(e),
-                                  );
+                                        );
 
+                                        setState(() {
+                                          isDataStorageInProgress = false;
+                                        });
+                                      } else {
+                                        setState(() {
+                                          isEditingTitle = true;
+                                          isEditingLink = true;
+                                        });
+                                      }
+                                    } else {
+                                      setState(() {
+                                        isErrorTime = true;
+                                        errorString =
+                                            'Invalid time! Please use a proper start and end time';
+                                      });
+                                    }
+                                  } else {
+                                    setState(() {
+                                      isEditingDate = true;
+                                      isEditingStartTime = true;
+                                      isEditingEndTime = true;
+                                      isEditingBatch = true;
+                                      isEditingTitle = true;
+                                      isEditingLink = true;
+                                    });
+                                  }
                                   setState(() {
                                     isDataStorageInProgress = false;
                                   });
-                                } else {
-                                  setState(() {
-                                    isEditingTitle = true;
-                                    isEditingLink = true;
-                                  });
-                                }
-                              } else {
-                                setState(() {
-                                  isErrorTime = true;
-                                  errorString = 'Invalid time! Please use a proper start and end time';
-                                });
-                              }
-                            } else {
-                              setState(() {
-                                isEditingDate = true;
-                                isEditingStartTime = true;
-                                isEditingEndTime = true;
-                                isEditingBatch = true;
-                                isEditingTitle = true;
-                                isEditingLink = true;
-                              });
-                            }
-                            setState(() {
-                              isDataStorageInProgress = false;
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(  shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(8.0))),),
-
-
+                                },
+                          style: ElevatedButton.styleFrom(
+                            shape: const RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8.0))),
+                          ),
                           child: Padding(
-                            padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+                            padding:
+                                const EdgeInsets.only(top: 15.0, bottom: 15.0),
                             child: isDataStorageInProgress
                                 ? const SizedBox(
-                              height: 28,
-                              width: 28,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
+                                    height: 28,
+                                    width: 28,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  )
                                 : const Text(
-                              'ADD',
-                              style: TextStyle(
-                                fontFamily: 'Raleway',
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                letterSpacing: 1.5,
-                              ),
-                            ),
+                                    'ADD',
+                                    style: TextStyle(
+                                      fontFamily: 'Raleway',
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      letterSpacing: 1.5,
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
@@ -1096,5 +1182,49 @@ class _AddEventScreenState extends State<AddEventScreen> {
         ],
       ),
     );
+  }
+
+  saveNotificationToDB(String notiTitle, String notiDescription) async {
+    String idGenerator() {
+      final now = DateTime.now();
+      return now.microsecondsSinceEpoch.toString();
+    }
+
+    NotificationModel notificationModel = NotificationModel.withId(
+      idGenerator(),
+      notiTitle,
+      notiDescription,
+      actualDate!,
+      actualTime!,
+      false,
+      '0',
+      '_token',
+    );
+    if (user != null) {
+      await storage
+          .storeNotiData(notificationModel, user!.uid.toString())
+          .then((value) {
+        SendPushMessage sendPushMessage = SendPushMessage();
+        sendPushMessage.sendPushNotification(
+            notiTitle, notiDescription, box!.get('token'));
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return DialogConfirmation(
+                details:
+                    'Your appointment is being confirmed  with Dr.Crypto on 3rd Sept',
+                subTitle: 'Your Appointment Successful',
+                title: 'Thank you!',
+                press: () {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      HomePage.routeName, (route) => false);
+                },
+              );
+            });
+      });
+    } else {
+      print('No User');
+    }
   }
 }

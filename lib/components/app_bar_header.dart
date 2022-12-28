@@ -6,13 +6,13 @@ import '../size_config.dart';
 class CustomAppBar extends StatefulWidget {
   const CustomAppBar({
     Key? key,
-    required this.top,
-    required this.left,
     required this.name,
-    required this.image
+    required this.notiPress,
+    required this.image,
   }) : super(key: key);
-  final double top, left;
-  final String name,image;
+
+  final String name, image;
+  final Function notiPress;
   @override
   State<CustomAppBar> createState() => _CustomAppBarState();
 }
@@ -29,29 +29,43 @@ class _CustomAppBarState extends State<CustomAppBar> {
           decoration: const BoxDecoration(color: kPrimaryColor),
         ),
         Positioned(
-          top: widget.top,
-          left: widget.left,
+          bottom: 24,
+          left: 30,
           child: Container(
-            height: 72.0,
-            width: 72.0,
+            height: 56.0,
+            width: 56.0,
             decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                image:  DecorationImage(
+                image: DecorationImage(
                   fit: BoxFit.cover,
-                  image: NetworkImage(widget.image),
+                  image: NetworkImage(
+                    widget.image,
+                  ),
                 ),
                 border: Border.all(color: const Color(0xffffffff), width: 2.0)),
           ),
         ),
         Positioned(
-          top: 70,
-          left: 120,
+          bottom: 36,
+          left: 96,
           child: Text(
             widget.name,
             textAlign: TextAlign.start,
             style: appBarHeadingStyle,
           ),
         ),
+        Positioned(
+            right: 24,
+            bottom: 24,
+            child: IconButton(
+              onPressed: () {
+                widget.notiPress();
+              },
+              icon: const Icon(
+                Icons.notifications,
+                color: kPrimaryBGColor,
+              ),
+            ))
       ],
     );
   }

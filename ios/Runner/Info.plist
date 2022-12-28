@@ -48,6 +48,15 @@
     	</dict>
     </array>
     <!-- End of the Google Sign-in Section -->
+
+    <!-- Razor pay UPI App Section -->
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+    	<string>tez</string>
+        <string>phonepe</string>
+        <string>paytmmp</string>
+    </array>
+<!-- Razor pay UPI App Section end-->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

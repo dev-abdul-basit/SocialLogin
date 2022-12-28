@@ -5,11 +5,14 @@ import 'package:intl/intl.dart';
 import 'package:socaillogin/components/custom_btm_bar.dart';
 import 'package:socaillogin/enum.dart';
 import 'package:socaillogin/models/event_info.dart';
+
 import '../../components/app_bar_header.dart';
 import '../../constants.dart';
 import '../../helper/global_config.dart';
 import '../../models/user_model.dart';
 import '../../size_config.dart';
+import '../book_appointment/book_appointment.dart';
+import '../notifications/notifications_screen.dart';
 
 class HomePage extends StatefulWidget {
   static String routeName = '/home';
@@ -25,16 +28,18 @@ class _HomePageState extends State<HomePage> {
   User? user;
   final DatabaseReference _databaseReference =
       FirebaseDatabase.instance.ref().child('Users');
+  final DatabaseReference _eventReference =
+      FirebaseDatabase.instance.ref().child('Events');
   var isLoading = false;
   var isLoadingEvent = false;
   var userData = [];
   List<UserModel> userModel = <UserModel>[];
   //////////////////////////////////////////
+
   //Event loading
   var eventData = [];
   List<EventInfo> eventModel = <EventInfo>[];
   String? time;
-
 
   @override
   void initState() {
@@ -44,6 +49,13 @@ class _HomePageState extends State<HomePage> {
       getCurrentUser();
     } else {
       print('No User Found');
+    }
+    print(box!.get('status'));
+    if (box!.get('status') == 'false') {
+      Future.delayed(Duration.zero, () {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+            BookAppointmentPage.routeName, (route) => false);
+      });
     }
   }
 
@@ -55,8 +67,9 @@ class _HomePageState extends State<HomePage> {
           : Column(
               children: <Widget>[
                 CustomAppBar(
-                  left: 25,
-                  top: 40,
+                  notiPress: () {
+                    Navigator.pushNamed(context, NotificationScreen.routeName);
+                  },
                   image: box!.get('photoUrl') == 'empty'
                       ? userImage
                       : box!.get('photoUrl'),
@@ -98,7 +111,16 @@ class _HomePageState extends State<HomePage> {
                                       style: headingStyleh2,
                                     ),
                                     IconButton(
-                                        onPressed: () {},
+                                        onPressed: () async {
+                                          // await calendarClient
+                                          //     .delete(eventModel[index].getId!,
+                                          //         true)
+                                          //     .then((value) async {
+                                          //   await storage.deleteEvent(
+                                          //       user!.uid.toString(),
+                                          //       eventModel[index].getId!);
+                                          // });
+                                        },
                                         icon: const Icon(
                                           Icons.edit_calendar_outlined,
                                           color: kPrimaryColor,
@@ -125,11 +147,9 @@ class _HomePageState extends State<HomePage> {
                                     Text(
                                       'Time: ',
                                       style: headingStyleh1,
-
                                     ),
                                     Text(
-
-                                      isLoadingEvent == false ?'':time!,
+                                      isLoadingEvent == false ? '' : time!,
                                       style: headingStyleh2,
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 1,
@@ -145,7 +165,7 @@ class _HomePageState extends State<HomePage> {
                                       style: headingStyleh1,
                                     ),
                                     Text(
-                                      eventModel[index].getLocation,
+                                      eventModel[index].getDesc,
                                       style: headingStyleh2,
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 1,
@@ -177,51 +197,62 @@ class _HomePageState extends State<HomePage> {
       for (var data in snapshot.children) {
         userData.add(data.value);
       }
+      if (mounted) {
+        setState(() {
+          if (snapshot.exists && userData.isNotEmpty) {
+            for (int x = 0; x < userData.length; x++) {
+              if (userData[x]['id'] == user!.uid.toString()) {
+                String id = userData[x]['id'].toString();
+                String name = userData[x]['userName'];
+                String phone = userData[x]['phone'];
+                String email = userData[x]['email'];
 
-      setState(() {
-        if (snapshot.exists && userData.isNotEmpty) {
-          for (int x = 0; x < userData.length; x++) {
-            if (userData[x]['id'] == user!.uid.toString()) {
-              String id = userData[x]['id'].toString();
-              String name = userData[x]['userName'];
-              String phone = userData[x]['phone'];
-              String email = userData[x]['email'];
-              String address = userData[x]['address'];
-              String photoUrl = userData[x]['photoUrl'];
-              String status = userData[x]['status'];
-              String token = userData[x]['token'];
-              //Adding data to Hive
-              box!.put("name", userData[x]['userName']);
-              box!.put("phone", userData[x]['phone']);
-              box!.put("email", userData[x]['email']);
-              box!.put("address", userData[x]['address']);
-              box!.put("photoUrl", userData[x]['photoUrl']);
-              box!.put("status", userData[x]['status']);
-              box!.put("token", userData[x]['token']);
-              userModel.add(UserModel.editwithId(
-                id,
-                name,
-                phone,
-                email,
-                address,
-                photoUrl,
-                status,
-                token,
-              ));
+                String photoUrl = userData[x]['photoUrl'];
+                String status = userData[x]['status'];
+                String token = userData[x]['token'];
+                String price2 = userData[x]['price2'];
+                String profitLoss = userData[x]['profitLoss'];
+                String plStatus = userData[x]['plStatus'];
+                //Adding data to Hive
+                box!.put("uid", userData[x]['id']);
+                box!.put("name", userData[x]['userName']);
+                box!.put("phone", userData[x]['phone']);
+                box!.put("email", userData[x]['email']);
+
+                box!.put("photoUrl", userData[x]['photoUrl']);
+                box!.put("status", userData[x]['status']);
+                box!.put("token", userData[x]['token']);
+                box!.put('price2', userData[x]['price2']);
+                box!.put('profitLoss', userData[x]['profitLoss']);
+                box!.put('plStatus', userData[x]['plStatus']);
+                userModel.add(UserModel.editwithId(
+                  id,
+                  name,
+                  phone,
+                  email,
+                  photoUrl,
+                  status,
+                  token,
+                  price2,
+                  profitLoss,
+                  plStatus,
+                ));
+              }
+              getEvents();
             }
-            getEvents();
+            isLoading = true;
+          } else {
+            isLoading = false;
           }
-          isLoading = true;
-        } else {
-          isLoading = false;
-        }
-      });
+        });
+      }
     });
   }
+
   //get events
 
   Future<void> getEvents() async {
-    _databaseReference
+    _eventReference
         .child(user!.uid.toString())
         .child('events')
         .onValue
@@ -234,49 +265,49 @@ class _HomePageState extends State<HomePage> {
       for (var data in snapshot.children) {
         eventData.add(data.value);
       }
+      if (mounted) {
+        setState(() {
+          if (snapshot.exists && eventData.isNotEmpty) {
+            for (int x = 0; x < eventData.length; x++) {
+              String id = eventData[x]['id'].toString();
+              String name = eventData[x]['name'];
+              String desc = eventData[x]['desc'];
+              String loc = eventData[x]['loc'];
+              String link = eventData[x]['link'];
+              String date = eventData[x]['date'];
+              List emails = eventData[x]['emails'];
+              bool should_notify = eventData[x]['should_notify'];
+              bool has_conferencing = eventData[x]['has_conferencing'];
+              int start = eventData[x]['start'];
+              int end = eventData[x]['end'];
+              String status = eventData[x]['status'];
+              var dt = DateTime.fromMillisecondsSinceEpoch(start);
 
-      setState(() {
-        if (snapshot.exists && eventData.isNotEmpty) {
-          for (int x = 0; x < eventData.length; x++) {
-            String id = eventData[x]['id'].toString();
-            String name = eventData[x]['name'];
-            String desc = eventData[x]['desc'];
-            String loc = eventData[x]['loc'];
-            String link = eventData[x]['link'];
-            String date = eventData[x]['date'];
-            List emails = eventData[x]['emails'];
-            bool should_notify = eventData[x]['should_notify'];
-            bool has_conferencing = eventData[x]['has_conferencing'];
-            int start = eventData[x]['start'];
-            int end = eventData[x]['end'];
-            String status = eventData[x]['status'];
-            var dt = DateTime.fromMillisecondsSinceEpoch(start);
+              time = DateFormat('hh:mm a').format(dt);
+              //  print(time);
+              eventModel.add(EventInfo.withId(
+                id,
+                name,
+                desc,
+                loc,
+                link,
+                date,
+                emails,
+                should_notify,
+                has_conferencing,
+                start,
+                end,
+                status,
+              ));
+            }
 
-             time = DateFormat('hh:mm a').format(dt);
-            print(time);
-            eventModel.add(EventInfo.withId(
-              id,
-              name,
-              desc,
-              loc,
-              link,
-              date,
-              emails,
-              should_notify,
-              has_conferencing,
-              start,
-              end,
-              status,
-            ));
+            isLoadingEvent = true;
+          } else {
+            isLoadingEvent = false;
+            print('No Events');
           }
-
-          isLoadingEvent = true;
-
-        } else {
-          isLoadingEvent = false;
-          print('No Events');
-        }
-      });
+        });
+      }
     });
   }
 }

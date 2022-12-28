@@ -1,21 +1,16 @@
-import 'package:flutter/material.dart';
-
-import '../../helper/keyboard.dart';
-import '../../size_config.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:socaillogin/components/primary_button.dart';
 import 'package:socaillogin/components/secondary_button.dart';
 import 'package:socaillogin/helper/global_config.dart';
-
 import 'package:socaillogin/screens/otp_verify/otp_verify_screen.dart';
 import 'package:socaillogin/screens/sign_in/sign_in_screen.dart';
 
-import 'package:intl_phone_field/intl_phone_field.dart';
-
 import '../../../constants.dart';
+import '../../helper/keyboard.dart';
+import '../../size_config.dart';
 import '../home/homepage.dart';
 
 class SignUpScreen extends StatefulWidget {

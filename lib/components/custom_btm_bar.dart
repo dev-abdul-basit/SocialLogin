@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:socaillogin/screens/book_appointment/book_appointment.dart';
 import 'package:socaillogin/screens/home/homepage.dart';
+import 'package:socaillogin/screens/portfolio/portfolio_screen.dart';
 import 'package:socaillogin/screens/profile/profilepage.dart';
 
 import '../constants.dart';
@@ -51,6 +52,7 @@ class CustomBottomNavBar extends StatelessWidget {
                       onPressed: () {
                         Navigator.of(context).pushNamedAndRemoveUntil(
                             HomePage.routeName, (route) => false);
+
                         // Navigator.pushNamed(context, HomeScreen.routeName);
                       }),
                   Container(
@@ -101,12 +103,12 @@ class CustomBottomNavBar extends StatelessWidget {
                           ? kPrimaryColor
                           : inActiveIconColor,
                     ),
-                    onPressed: () {},
+                    onPressed: () { Navigator.pushNamed(context, PortfolioScreen.routeName);},
                   ),
                   Container(
                     child: MenuState.portfolio == selectedMenu
                         ? Visibility(visible: true, child: mContainer())
-                        : Visibility(
+                        : const Visibility(
                             visible: false,
                             child: Text("Portfolio"),
                           ),

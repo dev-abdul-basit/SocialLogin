@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'size_config.dart';
 
 //const kPrimaryBGColor = Color(0xFFF5F5F5);
@@ -71,6 +72,13 @@ final appBarHeadingStyle = TextStyle(
   color: const Color(0xffffffff),
   height: 1.2,
   fontWeight: FontWeight.w500,
+);
+final notiHeadingStyle = TextStyle(
+  fontFamily: 'Poppins-Bold',
+  fontSize: getProportionateScreenWidth(28),
+  color: const Color(0xffffffff),
+  height: 1.2,
+  fontWeight: FontWeight.w900,
 );
 
 const defaultDuration = Duration(milliseconds: 250);

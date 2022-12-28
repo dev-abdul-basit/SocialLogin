@@ -2,18 +2,19 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pinput/pinput.dart';
 import 'package:socaillogin/components/primary_button.dart';
 import 'package:socaillogin/helper/global_config.dart';
 import 'package:socaillogin/models/user_model.dart';
-
 import 'package:socaillogin/screens/password_screen/password_screen.dart';
 import 'package:socaillogin/screens/sign_up/sign_up_screen.dart';
 import 'package:socaillogin/size_config.dart';
 
 import '../../../constants.dart';
+import '../../home/homepage.dart';
 
 class Body extends StatefulWidget {
   const Body({super.key});
@@ -28,10 +29,12 @@ class _BodyState extends State<Body> {
   final DatabaseReference _databaseReference =
       FirebaseDatabase.instance.ref().child('Users');
   User? user;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   @override
   void initState() {
     super.initState();
     startTimer();
+    getToken();
   }
 
   final pinController = TextEditingController();
@@ -39,6 +42,17 @@ class _BodyState extends State<Body> {
   final formKey = GlobalKey<FormState>();
   FirebaseAuth auth = FirebaseAuth.instance;
   var code = '';
+
+  String? mtoken = " ";
+
+  void getToken() async {
+    await FirebaseMessaging.instance.getToken().then((token) {
+      setState(() {
+        mtoken = token;
+      });
+    });
+  }
+
   @override
   void dispose() {
     pinController.dispose();
@@ -193,16 +207,28 @@ class _BodyState extends State<Body> {
                             PhoneAuthProvider.credential(
                                 smsCode: code,
                                 verificationId: SignUpScreen.verify);
-                        await auth
-                            .signInWithCredential(credential)
-                            .whenComplete(() => {});
+                        UserCredential userCred =
+                            await auth.signInWithCredential(credential);
+                        bool? isNewUser =
+                            userCred.additionalUserInfo?.isNewUser;
                         user = auth.currentUser;
-                        if (user != null) {
+                        if (user != null && isNewUser!) {
                           print(user!.phoneNumber);
                           print(user!.uid);
+
                           saveUserToFirebaseDB(user!.uid.toString());
                           // user!.updatePassword('newPassword');
+                        } else {
+                          box!.put('user_login', true);
+                          gotoHomePage();
                         }
+                        // await auth
+                        //     .signInWithCredential(credential)
+                        //     .then((value) {
+                        //   user = auth.currentUser;
+                        //
+                        //
+                        // });
                       } catch (e) {
                         const snackBar = SnackBar(
                           content: Text('Wrong OTP!'),
@@ -256,6 +282,18 @@ class _BodyState extends State<Body> {
     );
   }
 
+  gotoHomePage() async {
+    DatabaseReference ref = FirebaseDatabase.instance.ref("Users");
+
+// Only update the name, leave the age and address!
+    await ref.child(user!.uid.toString()).update({
+      "token": mtoken,
+    }).then((value) {
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil(HomePage.routeName, (route) => false);
+    });
+  }
+
   gotoPasswordScreen() {
     Navigator.push(
         context,
@@ -277,24 +315,30 @@ class _BodyState extends State<Body> {
         user!.phoneNumber.toString(),
         'empty',
         'empty',
-        'empty',
-        'true',
-        'empty',
+        'false',
+        mtoken!,
+        '--',
+        '--',
+        '0',
       );
       await _databaseReference
           .child(user!.uid.toString())
           .set(userModel.toJson())
-          .whenComplete(() => {});
-      box!.put('user_login', true);
-      box!.put('name', 'empty');
-      box!.put('email', 'empty');
-      box!.put('contact', user!.phoneNumber.toString());
-      box!.put('address', 'empty');
-      box!.put('status', 'true');
-      box!.put('token', 'empty');
-      box!.put('photoUrl', 'empty');
-
-      gotoPasswordScreen();
+          .then((value) => {
+                box!.put('user_login', true),
+                box!.put('uid', user!.uid.toString()),
+                box!.put('name', 'empty'),
+                box!.put('email', 'empty'),
+                box!.put('contact', user!.phoneNumber.toString()),
+                box!.put('address', 'empty'),
+                box!.put('status', 'false'),
+                box!.put('token', 'empty'),
+                box!.put('photoUrl', 'empty'),
+                box!.put('price2', '--'),
+                box!.put('profitLoss', '--'),
+                box!.put('plStatus', '0'),
+                gotoPasswordScreen(),
+              });
     }
   }
 
